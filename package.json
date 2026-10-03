@@ -9,7 +9,7 @@
   "bugs": {
     "url": "https://github.com/haribaskarvr/rca-cml-migration/issues"
   },
-  "version": "1.0.0",
+  "version": "1.0.1",
   "dependencies": {
     "@oclif/core": "^4",
     "@salesforce/core": "^8",
@@ -20,6 +20,7 @@
     "@salesforce/cli-plugins-testkit": "^5.3.10",
     "@salesforce/dev-scripts": "^10",
     "eslint-plugin-sf-plugin": "^1.18.6",
+    "husky": "^7.0.4",
     "oclif": "^4.14.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
@@ -70,7 +71,7 @@
     "format": "wireit",
     "link-check": "wireit",
     "lint": "wireit",
-    "postinstall": "yarn husky install",
+    "prepare": "husky install",
     "postpack": "sf-clean --ignore-signing-artifacts",
     "prepack": "sf-prepack",
     "test": "wireit",

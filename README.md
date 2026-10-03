@@ -38,19 +38,6 @@ sf cml migrate --source-org SOURCE_ORG_ALIAS --target-org TARGET_ORG_ALIAS --mod
 
 Commands support the Python engine's matching, version, JWT, mapping, and production flags. Run any command with `--help` for options. The detailed migration, pipeline, artifact, and recovery guide follows.
 
-## Develop and Link
-
-From this directory, install dependencies and compile, then link the plugin:
-
-```powershell
-yarn install
-yarn build
-sf plugins link .
-sf cml --help
-```
-
-When running from source, the Python engine path is resolved from the installed plugin package, while migration output and input paths are relative to the current working directory.
-
 ## Install from npm
 
 The package name is `rca-cml-migration` and it is configured for public access.
@@ -58,9 +45,7 @@ The package name is `rca-cml-migration` and it is configured for public access.
 After publishing, install it into Salesforce CLI:
 
 ```powershell
-npm login
-npm whoami
-sf plugins install rca-cml-migration@1.0.0
+sf plugins install rca-cml-migration@1.0.1
 sf cml --help
 ```
 
