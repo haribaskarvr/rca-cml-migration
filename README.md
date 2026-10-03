@@ -51,6 +51,25 @@ sf cml --help
 
 When running from source, the Python engine path is resolved from the installed plugin package, while migration output and input paths are relative to the current working directory.
 
+## Install from npm
+
+The package name is `@haribaskarvr/rca-cml-migration`. It is configured for restricted access so it can be tested privately before becoming public. Private npm packages require an eligible paid npm account or organization, and the installing npm account must have access.
+
+After publishing the private package, authenticate to npm and install it into Salesforce CLI:
+
+```powershell
+npm login
+npm whoami
+sf plugins install @haribaskarvr/rca-cml-migration@1.0.0
+sf cml --help
+```
+
+Install Salesforce CLI v2 and Python 3.10+ on the system first. To make the same package public later, change its visibility without republishing:
+
+```powershell
+npm access set status=public @haribaskarvr/rca-cml-migration
+```
+
 ## CML Migration Guide
 
 Use [scripts/python/migrate_cml.py](scripts/python/migrate_cml.py) to export a Revenue Cloud constraint model and import it into another org. Requires Python 3.10+ and authenticated Salesforce CLI aliases. Uses only the Python standard library.
