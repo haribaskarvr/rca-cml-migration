@@ -81,7 +81,7 @@ def parser() -> argparse.ArgumentParser:
         if name in ("export", "migrate"):
             operation.add_argument("--source-org", required=True, help="Source sf alias; created/refreshed in JWT mode")
             operation.add_argument("--model-api", required=True, help="Source ExpressionSet API name")
-            operation.add_argument("--source-version", help="Definition-version ID or number; required if multiple exist")
+            operation.add_argument("--source-version", help="ExpressionSetDefinitionVersion Salesforce ID (15 or 18 characters) or version number; required if multiple exist")
             operation.add_argument("--product-key", default="External_Id__c", help="Product2 stable key field")
             operation.add_argument("--output-dir", required=True, help="Parent directory for automatic timestamped run folders")
         if name in ("import", "migrate"):

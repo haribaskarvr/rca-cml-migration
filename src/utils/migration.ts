@@ -10,15 +10,16 @@ type PythonCommand = {
   prefix: string[];
 };
 
-const pythonCommands: PythonCommand[] = process.platform === 'win32'
-  ? [
-      { command: 'python', prefix: [] },
-      { command: 'py', prefix: ['-3'] },
-    ]
-  : [
-      { command: 'python3', prefix: [] },
-      { command: 'python', prefix: [] },
-    ];
+const pythonCommands: PythonCommand[] =
+  process.platform === 'win32'
+    ? [
+        { command: 'python', prefix: [] },
+        { command: 'py', prefix: ['-3'] },
+      ]
+    : [
+        { command: 'python3', prefix: [] },
+        { command: 'python', prefix: [] },
+      ];
 
 const minimumPythonVersion = [3, 10];
 type FlagMap = Interfaces.FlagInput;
@@ -38,7 +39,10 @@ export function sourceFlags(): FlagMap {
   return {
     'source-org': Flags.string({ required: true, summary: 'Source org alias.' }),
     'model-api': Flags.string({ required: true, summary: 'Parent ExpressionSet API name.' }),
-    'source-version': Flags.string({ summary: 'ExpressionSetDefinitionVersion ID or exposed version number.' }),
+    'source-version': Flags.string({
+      summary:
+        'ExpressionSetDefinitionVersion Salesforce ID (15 or 18 characters) or exposed version number; required if multiple exist.',
+    }),
     'product-key': Flags.string({ default: 'External_Id__c', summary: 'Stable Product2 matching field.' }),
     'output-dir': Flags.string({ required: true, summary: 'Parent directory for this run’s timestamped artifacts.' }),
   };
@@ -61,7 +65,10 @@ export function targetFlags(): FlagMap {
 export function importFlags(): FlagMap {
   return {
     ...targetFlags(),
-    'input-dir': Flags.string({ required: true, summary: 'Exported run directory containing model.cml and manifest.json.' }),
+    'input-dir': Flags.string({
+      required: true,
+      summary: 'Exported run directory containing model.cml and manifest.json.',
+    }),
     'output-dir': Flags.string({ summary: 'Parent directory for this import invocation’s run folder.' }),
   };
 }
@@ -77,8 +84,10 @@ function findPython(): PythonCommand | undefined {
     if (!match || result.status !== 0) continue;
 
     const version = [Number(match[1]), Number(match[2])];
-    if (version[0] > minimumPythonVersion[0]
-      || (version[0] === minimumPythonVersion[0] && version[1] >= minimumPythonVersion[1])) {
+    if (
+      version[0] > minimumPythonVersion[0] ||
+      (version[0] === minimumPythonVersion[0] && version[1] >= minimumPythonVersion[1])
+    ) {
       return candidate;
     }
   }
@@ -108,7 +117,9 @@ export function runMigrationScript(command: string, args: string[], jsonEnabled:
 
   const python = findPython();
   if (!python) {
-    throw new Error('Python 3.10 or newer is required. Install Python and ensure python3, python, or (on Windows) py is on PATH.');
+    throw new Error(
+      'Python 3.10 or newer is required. Install Python and ensure python3, python, or (on Windows) py is on PATH.'
+    );
   }
 
   return new Promise((resolvePromise, rejectPromise) => {
@@ -129,7 +140,9 @@ export function runMigrationScript(command: string, args: string[], jsonEnabled:
       if (jsonEnabled) stderr += chunk.toString('utf8');
       else process.stderr.write(chunk);
     });
-    child.on('error', (error) => rejectPromise(new Error(`Unable to start the Python migration engine: ${error.message}`)));
+    child.on('error', (error) =>
+      rejectPromise(new Error(`Unable to start the Python migration engine: ${error.message}`))
+    );
     child.on('close', (exitCode) => resolvePromise({ exitCode: exitCode ?? 1, stdout, stderr }));
   });
 }
@@ -138,13 +151,14 @@ export async function executeMigration(
   command: string,
   flags: object,
   jsonEnabled: boolean,
-  reportError: (message: string, exitCode: number) => void,
+  reportError: (message: string, exitCode: number) => void
 ): Promise<MigrationOutput> {
   const result = await runMigrationScript(command, migrationArgs(flags), jsonEnabled);
   if (result.exitCode !== 0) {
-    const message = jsonEnabled && result.stderr.trim()
-      ? result.stderr.trim()
-      : `CML ${command} failed with exit code ${result.exitCode}.`;
+    const message =
+      jsonEnabled && result.stderr.trim()
+        ? result.stderr.trim()
+        : `CML ${command} failed with exit code ${result.exitCode}.`;
     reportError(message, result.exitCode);
   }
 

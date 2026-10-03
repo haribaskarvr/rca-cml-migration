@@ -8,5 +8,5 @@ Validates the selected export and target org. Dry-run is the default and never w
 
 # examples
 
-- <%= config.bin %> <%= command.id %> --target-org GB_PREPROD --input-dir migration/GB_CML/RUN_FOLDER --dry-run
-- <%= config.bin %> <%= command.id %> --target-org GB_PREPROD --input-dir migration/GB_CML/RUN_FOLDER --apply
+- <%= config.bin %> <%= command.id %> --target-org TARGET_ORG_ALIAS --input-dir migration/CML_API_NAME/RUN_FOLDER --dry-run
+- <%= config.bin %> <%= command.id %> --target-org TARGET_ORG_ALIAS --input-dir migration/CML_API_NAME/RUN_FOLDER --apply

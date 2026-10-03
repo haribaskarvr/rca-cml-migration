@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f4f7f2" />
+    <meta
+      name="description"
+      content="A dry-run-first Salesforce CLI plugin for moving Revenue Cloud Constraint Model Language between orgs."
+    />
+    <title>RCA CML Migration | Move models with control</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: light;
+        --paper: #f4f7f2;
+        --white: #ffffff;
+        --ink: #17211d;
+        --muted: #5c6962;
+        --line: #d7dfd8;
+        --green: #176a4d;
+        --lime: #d9f26a;
+        --coral: #ed765b;
+        --deep: #14251f;
+        --mono: 'DM Mono', 'Cascadia Code', Consolas, monospace;
+        --sans: 'Manrope', 'Aptos', 'Segoe UI', sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--sans);
+        font-size: 16px;
+        line-height: 1.6;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      a:focus-visible,
+      button:focus-visible {
+        outline: 3px solid var(--coral);
+        outline-offset: 4px;
+      }
+
+      .wrap {
+        width: min(1160px, calc(100% - 48px));
+        margin-inline: auto;
+      }
+
+      .topbar {
+        min-height: 76px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 11px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      .brand-mark {
+        width: 30px;
+        height: 30px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3px;
+        padding: 5px;
+        background: var(--lime);
+        border: 1px solid var(--ink);
+      }
+
+      .brand-mark span:first-child {
+        background: var(--ink);
+      }
+
+      .brand-mark span:last-child {
+        background: var(--coral);
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .nav a {
+        text-decoration: none;
+      }
+
+      .nav a:hover {
+        color: var(--green);
+      }
+
+      .nav .nav-cta {
+        padding: 9px 14px;
+        border: 1px solid var(--ink);
+        border-radius: 4px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(400px, 0.95fr);
+        align-items: center;
+        gap: 64px;
+        padding-block: 82px 72px;
+        background-image: linear-gradient(to right, rgba(23, 33, 29, 0.035) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(23, 33, 29, 0.035) 1px, transparent 1px);
+        background-size: 32px 32px;
+      }
+
+      .hero-copy {
+        animation: arrive 600ms ease-out both;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        margin: 0 0 18px;
+        color: var(--green);
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 500;
+        text-transform: uppercase;
+      }
+
+      .eyebrow::before {
+        width: 24px;
+        height: 2px;
+        background: var(--coral);
+        content: '';
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 620px;
+        margin-bottom: 20px;
+        font-size: 60px;
+        font-weight: 800;
+        letter-spacing: 0;
+        line-height: 1.02;
+      }
+
+      h1 span {
+        display: block;
+        color: var(--green);
+      }
+
+      .hero-lede {
+        max-width: 520px;
+        margin-bottom: 28px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .button {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        padding: 10px 16px;
+        border: 1px solid var(--ink);
+        border-radius: 4px;
+        background: var(--ink);
+        color: var(--white);
+        font-size: 13px;
+        font-weight: 800;
+        text-decoration: none;
+        transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
+      }
+
+      .button:hover {
+        transform: translateY(-2px);
+      }
+
+      .button-secondary {
+        background: transparent;
+        color: var(--ink);
+      }
+
+      .button-secondary:hover {
+        background: var(--lime);
+      }
+
+      .hero-note {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin: 22px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        flex: 0 0 auto;
+        border-radius: 50%;
+        background: var(--green);
+      }
+
+      .terminal {
+        overflow: hidden;
+        border: 1px solid #34453d;
+        border-radius: 7px;
+        background: var(--deep);
+        color: #edf4ef;
+        box-shadow: 12px 12px 0 rgba(23, 33, 29, 0.12);
+        animation: arrive 700ms 100ms ease-out both;
+      }
+
+      .terminal-bar {
+        min-height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-inline: 17px;
+        border-bottom: 1px solid #34453d;
+        color: #a8b8ae;
+        font-family: var(--mono);
+        font-size: 10px;
+      }
+
+      .terminal-lights {
+        display: flex;
+        gap: 5px;
+      }
+
+      .terminal-lights span {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #63736b;
+      }
+
+      .terminal-lights span:first-child {
+        background: var(--coral);
+      }
+
+      .terminal-lights span:nth-child(2) {
+        background: #e9c66b;
+      }
+
+      .terminal-lights span:last-child {
+        background: var(--lime);
+      }
+
+      .terminal-body {
+        padding: 22px 20px 18px;
+      }
+
+      .terminal-label {
+        margin-bottom: 10px;
+        color: var(--lime);
+        font-family: var(--mono);
+        font-size: 10px;
+        text-transform: uppercase;
+      }
+
+      pre,
+      code {
+        font-family: var(--mono);
+      }
+
+      .hero-command {
+        overflow-x: auto;
+        margin: 0;
+        color: #edf4ef;
+        font-size: 11px;
+        line-height: 1.8;
+        white-space: pre;
+      }
+
+      .hero-command .prompt {
+        color: var(--lime);
+      }
+
+      .hero-command .flag {
+        color: #a8c8ff;
+      }
+
+      .hero-command .value {
+        color: #e9c66b;
+      }
+
+      .checklist {
+        display: grid;
+        gap: 0;
+        margin: 20px 0 0;
+        padding: 0;
+        border-top: 1px solid #34453d;
+        list-style: none;
+      }
+
+      .checklist li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid #34453d;
+        color: #d3dfd7;
+        font-size: 11px;
+      }
+
+      .checkmark {
+        width: 16px;
+        height: 16px;
+        display: inline-grid;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--lime);
+        color: var(--deep);
+        font-size: 10px;
+        font-weight: 800;
+      }
+
+      .dry-run-tag {
+        margin-left: auto;
+        padding: 3px 7px;
+        border-radius: 2px;
+        background: var(--lime);
+        color: var(--ink);
+        font-family: var(--mono);
+        font-size: 9px;
+        white-space: nowrap;
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .metric {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        padding: 20px 24px;
+        border-right: 1px solid var(--line);
+      }
+
+      .metric:first-child {
+        padding-left: 0;
+      }
+
+      .metric:last-child {
+        border-right: 0;
+      }
+
+      .metric strong {
+        color: var(--green);
+        font-size: 25px;
+        font-weight: 800;
+      }
+
+      .metric span {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .section {
+        padding-block: 78px;
+      }
+
+      .section-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 32px;
+        margin-bottom: 32px;
+      }
+
+      .section-head h2 {
+        max-width: 600px;
+        margin: 0;
+        font-size: 36px;
+        font-weight: 800;
+        letter-spacing: 0;
+        line-height: 1.1;
+      }
+
+      .section-head p {
+        max-width: 360px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .workflow {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .workflow-step {
+        min-height: 210px;
+        padding: 22px 24px 24px 0;
+        border-right: 1px solid var(--line);
+      }
+
+      .workflow-step + .workflow-step {
+        padding-left: 24px;
+      }
+
+      .workflow-step:last-child {
+        border-right: 0;
+      }
+
+      .step-number {
+        width: 31px;
+        height: 31px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 22px;
+        border: 1px solid var(--ink);
+        border-radius: 50%;
+        font-family: var(--mono);
+        font-size: 11px;
+      }
+
+      .workflow-step h3 {
+        margin-bottom: 8px;
+        font-size: 17px;
+      }
+
+      .workflow-step p {
+        max-width: 300px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .workflow-step:nth-child(2) .step-number {
+        background: var(--lime);
+      }
+
+      .workflow-step:nth-child(3) .step-number {
+        background: var(--coral);
+      }
+
+      .commands-section {
+        background: var(--white);
+      }
+
+      .commands-section .wrap {
+        padding-block: 78px;
+      }
+
+      .command-tabs {
+        display: inline-flex;
+        gap: 4px;
+        margin-bottom: 18px;
+        padding: 4px;
+        border: 1px solid var(--line);
+        border-radius: 5px;
+        background: var(--paper);
+      }
+
+      .tab {
+        min-width: 90px;
+        padding: 8px 13px;
+        border: 0;
+        border-radius: 3px;
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        font-family: var(--sans);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .tab[aria-selected='true'] {
+        background: var(--ink);
+        color: var(--white);
+      }
+
+      .command-panel {
+        position: relative;
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: #fbfcfa;
+      }
+
+      .command-panel[hidden] {
+        display: none;
+      }
+
+      .command-panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      .command-panel-head p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .copy-button {
+        flex: 0 0 auto;
+        padding: 7px 10px;
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        background: var(--white);
+        color: var(--ink);
+        cursor: pointer;
+        font-family: var(--sans);
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      .copy-button:hover {
+        border-color: var(--green);
+        color: var(--green);
+      }
+
+      .command-code {
+        overflow-x: auto;
+        margin: 0;
+        padding: 16px;
+        border-radius: 3px;
+        background: var(--deep);
+        color: #eef4ee;
+        font-size: 12px;
+        line-height: 1.8;
+        white-space: pre;
+      }
+
+      .command-code .cmd {
+        color: var(--lime);
+      }
+
+      .command-code .arg {
+        color: #a8c8ff;
+      }
+
+      .command-code .placeholder {
+        color: #f0ce7f;
+      }
+
+      .requirements {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .requirement {
+        padding: 6px 9px;
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .safety-section {
+        background: var(--deep);
+        color: var(--white);
+      }
+
+      .safety-section .section-head p {
+        color: #bdc9c1;
+      }
+
+      .safety-section .eyebrow {
+        color: var(--lime);
+      }
+
+      .safety-list {
+        border-top: 1px solid #45564d;
+      }
+
+      .safety-row {
+        display: grid;
+        grid-template-columns: 56px minmax(170px, 0.55fr) 1fr;
+        align-items: baseline;
+        gap: 20px;
+        padding: 18px 0;
+        border-bottom: 1px solid #45564d;
+      }
+
+      .safety-index {
+        color: var(--lime);
+        font-family: var(--mono);
+        font-size: 11px;
+      }
+
+      .safety-row h3 {
+        margin: 0;
+        font-size: 15px;
+      }
+
+      .safety-row p {
+        margin: 0;
+        color: #bdc9c1;
+        font-size: 13px;
+      }
+
+      .safety-row code {
+        color: var(--lime);
+        font-size: 12px;
+      }
+
+      .scope-note {
+        display: grid;
+        grid-template-columns: 0.75fr 1.25fr;
+        gap: 50px;
+        padding-block: 64px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .scope-note h2 {
+        margin: 0;
+        font-size: 25px;
+        line-height: 1.15;
+      }
+
+      .scope-note p {
+        max-width: 680px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .scope-note strong {
+        color: var(--ink);
+      }
+
+      .install {
+        display: grid;
+        grid-template-columns: 0.8fr 1.2fr;
+        gap: 64px;
+        align-items: start;
+      }
+
+      .install > * {
+        min-width: 0;
+      }
+
+      .install h2 {
+        margin-bottom: 12px;
+        font-size: 32px;
+        line-height: 1.1;
+      }
+
+      .install p {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .install-code {
+        position: relative;
+        padding: 22px;
+        border-radius: 5px;
+        background: #e7eee7;
+      }
+
+      .install-code pre {
+        max-width: 100%;
+        overflow-x: auto;
+        margin: 0;
+        color: var(--ink);
+        font-size: 12px;
+        line-height: 1.9;
+      }
+
+      .install-code .copy-button {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+      }
+
+      footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding-block: 22px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      footer a {
+        color: var(--ink);
+        font-weight: 800;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 3px;
+      }
+
+      .copy-status {
+        min-height: 20px;
+        margin: 8px 0 0;
+        color: var(--green);
+        font-size: 11px;
+      }
+
+      @keyframes arrive {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 900px) {
+        .hero {
+          grid-template-columns: 1fr;
+          gap: 40px;
+          padding-block: 60px;
+        }
+
+        .terminal {
+          max-width: 680px;
+        }
+
+        .install {
+          gap: 32px;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .wrap {
+          width: min(100% - 32px, 520px);
+        }
+
+        .topbar {
+          min-height: 64px;
+        }
+
+        .nav {
+          gap: 14px;
+        }
+
+        .nav a:not(.nav-cta) {
+          display: none;
+        }
+
+        .hero {
+          gap: 32px;
+          padding-block: 48px;
+        }
+
+        h1 {
+          font-size: 44px;
+        }
+
+        .hero-lede {
+          font-size: 16px;
+        }
+
+        .terminal-body {
+          padding: 17px 14px;
+        }
+
+        .hero-command {
+          font-size: 10px;
+        }
+
+        .metrics {
+          grid-template-columns: 1fr;
+        }
+
+        .metric,
+        .metric:first-child {
+          padding: 13px 0;
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .metric:last-child {
+          border-bottom: 0;
+        }
+
+        .section,
+        .commands-section .wrap {
+          padding-block: 54px;
+        }
+
+        .section-head {
+          display: block;
+          margin-bottom: 24px;
+        }
+
+        .section-head h2 {
+          margin-bottom: 12px;
+          font-size: 29px;
+        }
+
+        .workflow {
+          grid-template-columns: 1fr;
+        }
+
+        .workflow-step,
+        .workflow-step + .workflow-step {
+          min-height: auto;
+          padding: 18px 0;
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .workflow-step:last-child {
+          border-bottom: 0;
+        }
+
+        .step-number {
+          margin-bottom: 12px;
+        }
+
+        .command-panel {
+          padding: 15px;
+        }
+
+        .command-panel-head {
+          align-items: flex-start;
+        }
+
+        .command-code {
+          padding: 12px;
+          font-size: 10px;
+        }
+
+        .safety-row {
+          grid-template-columns: 34px 1fr;
+          gap: 10px;
+        }
+
+        .safety-row p {
+          grid-column: 2;
+        }
+
+        .scope-note,
+        .install {
+          grid-template-columns: 1fr;
+          gap: 18px;
+        }
+
+        .scope-note {
+          padding-block: 48px;
+        }
+
+        .install h2 {
+          font-size: 28px;
+        }
+
+        footer {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="wrap topbar">
+      <a class="brand" href="#top" aria-label="RCA CML Migration home">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span></span>
+        <span>RCA CML Migration</span>
+      </a>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="#workflow">Workflow</a>
+        <a href="#commands">Commands</a>
+        <a href="#safety">Safety</a>
+        <a class="nav-cta" href="https://github.com/haribaskarvr/rca-cml-migration" target="_blank" rel="noreferrer"
+          >GitHub</a
+        >
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="wrap hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Salesforce CLI plugin / Revenue Cloud</p>
+          <h1 id="hero-title">RCA CML <span>Migration</span></h1>
+          <p class="hero-lede">
+            Move Constraint Model Language between orgs with a deliberate, reviewable workflow. Preflight first. Apply
+            only when you choose.
+          </p>
+          <div class="actions">
+            <a class="button" href="#commands">Explore commands <span aria-hidden="true">-&gt;</span></a>
+            <a
+              class="button button-secondary"
+              href="https://github.com/haribaskarvr/rca-cml-migration"
+              target="_blank"
+              rel="noreferrer"
+              >View source</a
+            >
+          </div>
+          <p class="hero-note">
+            <span class="status-dot" aria-hidden="true"></span>Python engine bundled. No extra Python libraries
+            required.
+          </p>
+        </div>
+
+        <div class="terminal" aria-label="Example CML migration dry-run command">
+          <div class="terminal-bar">
+            <span class="terminal-lights" aria-hidden="true"><span></span><span></span><span></span></span>
+            <span>preflight / target org</span>
+          </div>
+          <div class="terminal-body">
+            <p class="terminal-label">$ dry-run by default</p>
+            <pre class="hero-command"><span class="prompt">$</span> sf cml migrate \
+  <span class="flag">--source-org</span> <span class="value">SOURCE_ORG_ALIAS</span> \
+  <span class="flag">--target-org</span> <span class="value">TARGET_ORG_ALIAS</span> \
+  <span class="flag">--model-api</span> <span class="value">CML_API_NAME</span> \
+  <span class="flag">--source-version</span> <span class="value">SOURCE_DEFINITION_VERSION_ID_OR_NUMBER</span> \
+  <span class="flag">--output-dir</span> <span class="value">migration/CML_API_NAME</span> \
+  <span class="flag">--dry-run</span></pre>
+            <ul class="checklist">
+              <li><span class="checkmark" aria-hidden="true">+</span>Source model and version selected</li>
+              <li>
+                <span class="checkmark" aria-hidden="true">+</span>Target dependencies preflighted
+                <span class="dry-run-tag">NO WRITES</span>
+              </li>
+              <li><span class="checkmark" aria-hidden="true">+</span>Run artifacts saved locally</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="wrap metrics" aria-label="Plugin overview">
+        <div class="metric"><strong>03</strong><span>focused commands</span></div>
+        <div class="metric"><strong>02</strong><span>authentication modes</span></div>
+        <div class="metric"><strong>01</strong><span>explicit apply gate</span></div>
+      </section>
+
+      <section class="wrap section" id="workflow" aria-labelledby="workflow-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">A controlled path</p>
+            <h2 id="workflow-title">Export. Review. Apply.</h2>
+          </div>
+          <p>
+            Move the CML and its related constraint associations and context binding, while keeping target changes
+            behind an explicit decision.
+          </p>
+        </div>
+        <div class="workflow">
+          <article class="workflow-step">
+            <span class="step-number">01</span>
+            <h3>Export the source</h3>
+            <p>
+              Capture a selected definition version as UTF-8 CML with a checksummed manifest in a unique run folder.
+            </p>
+          </article>
+          <article class="workflow-step">
+            <span class="step-number">02</span>
+            <h3>Preflight the target</h3>
+            <p>
+              Validate model state, context, catalog matching, associations, and permissions before any target writes.
+            </p>
+          </article>
+          <article class="workflow-step">
+            <span class="step-number">03</span>
+            <h3>Apply by choice</h3>
+            <p>
+              Review the plan, then pass <code>--apply</code>. Production writes also require
+              <code>--allow-production</code>.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="commands-section" id="commands" aria-labelledby="commands-title">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">The command surface</p>
+              <h2 id="commands-title">One plugin. Three commands.</h2>
+            </div>
+            <p>
+              Choose a task to see its starting command. Replace the uppercase placeholders with your org aliases and
+              model details.
+            </p>
+          </div>
+          <div class="command-tabs" role="tablist" aria-label="CML commands">
+            <button
+              class="tab"
+              id="tab-export"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              aria-controls="panel-export"
+              data-tab="export"
+            >
+              Export
+            </button>
+            <button
+              class="tab"
+              id="tab-import"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="panel-import"
+              data-tab="import"
+              tabindex="-1"
+            >
+              Import
+            </button>
+            <button
+              class="tab"
+              id="tab-migrate"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="panel-migrate"
+              data-tab="migrate"
+              tabindex="-1"
+            >
+              Migrate
+            </button>
+          </div>
+
+          <div class="command-panel" id="panel-export" role="tabpanel" aria-labelledby="tab-export" data-panel="export">
+            <div class="command-panel-head">
+              <p>Export a source model and a specific definition version.</p>
+              <button class="copy-button" type="button" data-copy="command-export">Copy command</button>
+            </div>
+            <pre
+              class="command-code"
+              id="command-export"
+            ><span class="cmd">sf cml export</span> <span class="arg">--source-org</span> <span class="placeholder">SOURCE_ORG_ALIAS</span> <span class="arg">--model-api</span> <span class="placeholder">CML_API_NAME</span> <span class="arg">--source-version</span> <span class="placeholder">SOURCE_DEFINITION_VERSION_ID_OR_NUMBER</span> <span class="arg">--output-dir</span> <span class="placeholder">migration/CML_API_NAME</span></pre>
+            <p class="copy-status" aria-live="polite"></p>
+          </div>
+
+          <div
+            class="command-panel"
+            id="panel-import"
+            role="tabpanel"
+            aria-labelledby="tab-import"
+            data-panel="import"
+            hidden
+          >
+            <div class="command-panel-head">
+              <p>Preflight an existing export. This command is dry-run by default.</p>
+              <button class="copy-button" type="button" data-copy="command-import">Copy command</button>
+            </div>
+            <pre
+              class="command-code"
+              id="command-import"
+            ><span class="cmd">sf cml import</span> <span class="arg">--target-org</span> <span class="placeholder">TARGET_ORG_ALIAS</span> <span class="arg">--input-dir</span> <span class="placeholder">migration/CML_API_NAME/RUN_FOLDER</span> <span class="arg">--dry-run</span></pre>
+            <p class="copy-status" aria-live="polite"></p>
+          </div>
+
+          <div
+            class="command-panel"
+            id="panel-migrate"
+            role="tabpanel"
+            aria-labelledby="tab-migrate"
+            data-panel="migrate"
+            hidden
+          >
+            <div class="command-panel-head">
+              <p>Export from source, then preflight the target in one invocation.</p>
+              <button class="copy-button" type="button" data-copy="command-migrate">Copy command</button>
+            </div>
+            <pre
+              class="command-code"
+              id="command-migrate"
+            ><span class="cmd">sf cml migrate</span> <span class="arg">--source-org</span> <span class="placeholder">SOURCE_ORG_ALIAS</span> <span class="arg">--target-org</span> <span class="placeholder">TARGET_ORG_ALIAS</span> <span class="arg">--model-api</span> <span class="placeholder">CML_API_NAME</span> <span class="arg">--source-version</span> <span class="placeholder">SOURCE_DEFINITION_VERSION_ID_OR_NUMBER</span> <span class="arg">--output-dir</span> <span class="placeholder">migration/CML_API_NAME</span> <span class="arg">--dry-run</span></pre>
+            <p class="copy-status" aria-live="polite"></p>
+          </div>
+
+          <div class="requirements" aria-label="Requirements">
+            <span class="requirement">Salesforce CLI v2</span>
+            <span class="requirement">Python 3.10+</span>
+            <span class="requirement">Node.js 18+ to build</span>
+            <span class="requirement">sf-cli or JWT auth</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="safety-section" id="safety" aria-labelledby="safety-title">
+        <div class="wrap section">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Built around review</p>
+              <h2 id="safety-title">Writes stay deliberate.</h2>
+            </div>
+            <p>Dry-run reports are local artifacts. A successful preflight is not permission to skip review.</p>
+          </div>
+          <div class="safety-list">
+            <div class="safety-row">
+              <span class="safety-index">01</span>
+              <h3>Dry-run first</h3>
+              <p>Import and migrate validate the target without writing. Apply is a separate, explicit action.</p>
+            </div>
+            <div class="safety-row">
+              <span class="safety-index">02</span>
+              <h3>Production opt-in</h3>
+              <p>Production writes require the additional <code>--allow-production</code> flag.</p>
+            </div>
+            <div class="safety-row">
+              <span class="safety-index">03</span>
+              <h3>Recoverable records</h3>
+              <p>
+                Apply runs keep a target backup and action journal, then verify target state after writes. Activation
+                remains separate.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="wrap scope-note" aria-labelledby="scope-title">
+        <h2 id="scope-title">A focused migration, not a catalog deployment.</h2>
+        <p>
+          The target catalog records and context definition must already exist. This tool does not convert BRE rules,
+          migrate catalog metadata, clone version history, or activate models. Review the full
+          <a href="https://github.com/haribaskarvr/rca-cml-migration/blob/main/README.md">project guide</a> for matching
+          rules, authentication, CI setup, and recovery detail.
+        </p>
+      </section>
+
+      <section class="wrap section install" id="get-started" aria-labelledby="install-title">
+        <div>
+          <p class="eyebrow">Get started from source</p>
+          <h2 id="install-title">Link it into Salesforce CLI.</h2>
+          <p>
+            Install the prerequisites, build the plugin, then link this checkout for local use. The npm package is not
+            required for this path.
+          </p>
+          <div class="actions">
+            <a class="button" href="https://github.com/haribaskarvr/rca-cml-migration" target="_blank" rel="noreferrer"
+              >Open repository <span aria-hidden="true">-&gt;</span></a
+            >
+          </div>
+        </div>
+        <div class="install-code">
+          <button class="copy-button" type="button" data-copy="command-install">Copy commands</button>
+          <pre id="command-install">
+git clone https://github.com/haribaskarvr/rca-cml-migration.git&#10;cd rca-cml-migration&#10;yarn install&#10;yarn build&#10;sf plugins link .&#10;sf cml --help</pre
+          >
+          <p class="copy-status" aria-live="polite"></p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="wrap">
+      <span>RCA CML Migration / Salesforce CLI plugin</span>
+      <a href="https://github.com/haribaskarvr/rca-cml-migration" target="_blank" rel="noreferrer">Source on GitHub</a>
+    </footer>
+
+    <script>
+      const tabs = Array.from(document.querySelectorAll('[data-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-panel]'));
+
+      function selectTab(tab, moveFocus = false) {
+        tabs.forEach((item) => {
+          const selected = item === tab;
+          item.setAttribute('aria-selected', String(selected));
+          item.tabIndex = selected ? 0 : -1;
+        });
+        panels.forEach((panel) => {
+          panel.hidden = panel.dataset.panel !== tab.dataset.tab;
+        });
+        if (moveFocus) tab.focus();
+      }
+
+      tabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => selectTab(tab));
+        tab.addEventListener('keydown', (event) => {
+          let nextIndex = index;
+          if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
+          if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+          if (event.key === 'Home') nextIndex = 0;
+          if (event.key === 'End') nextIndex = tabs.length - 1;
+          if (nextIndex !== index) {
+            event.preventDefault();
+            selectTab(tabs[nextIndex], true);
+          }
+        });
+      });
+
+      document.querySelectorAll('[data-copy]').forEach((button) => {
+        button.addEventListener('click', async () => {
+          const command = document.getElementById(button.dataset.copy);
+          const status = button.closest('.command-panel, .install-code').querySelector('.copy-status');
+          try {
+            await navigator.clipboard.writeText(command.innerText.trim());
+            status.textContent = 'Command copied.';
+          } catch {
+            status.textContent = 'Clipboard unavailable. Select the command to copy it.';
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
