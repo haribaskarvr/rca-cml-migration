@@ -3,7 +3,7 @@ import { Messages } from '@salesforce/core';
 import { commonFlags, executeMigration, importFlags, type MigrationOutput } from '../../utils/migration.js';
 
 Messages.importMessagesDirectoryFromMetaUrl(import.meta.url);
-const messages = Messages.loadMessages('@haribaskarvr/rca-cml-migration', 'cml.import');
+const messages = Messages.loadMessages('rca-cml-migration', 'cml.import');
 
 export default class CmlImport extends SfCommand<MigrationOutput> {
   public static readonly summary = messages.getMessage('summary');

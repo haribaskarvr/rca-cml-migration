@@ -9,7 +9,7 @@ import {
 } from '../../utils/migration.js';
 
 Messages.importMessagesDirectoryFromMetaUrl(import.meta.url);
-const messages = Messages.loadMessages('@haribaskarvr/rca-cml-migration', 'cml.migrate');
+const messages = Messages.loadMessages('rca-cml-migration', 'cml.migrate');
 
 export default class CmlMigrate extends SfCommand<MigrationOutput> {
   public static readonly summary = messages.getMessage('summary');

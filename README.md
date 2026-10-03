@@ -53,22 +53,18 @@ When running from source, the Python engine path is resolved from the installed 
 
 ## Install from npm
 
-The package name is `@haribaskarvr/rca-cml-migration`. It is configured for restricted access so it can be tested privately before becoming public. Private npm packages require an eligible paid npm account or organization, and the installing npm account must have access.
+The package name is `rca-cml-migration` and it is configured for public access.
 
-After publishing the private package, authenticate to npm and install it into Salesforce CLI:
+After publishing, install it into Salesforce CLI:
 
 ```powershell
 npm login
 npm whoami
-sf plugins install @haribaskarvr/rca-cml-migration@1.0.0
+sf plugins install rca-cml-migration@1.0.0
 sf cml --help
 ```
 
-Install Salesforce CLI v2 and Python 3.10+ on the system first. To make the same package public later, change its visibility without republishing:
-
-```powershell
-npm access set status=public @haribaskarvr/rca-cml-migration
-```
+Install Salesforce CLI v2 and Python 3.10+ on the system first.
 
 ## CML Migration Guide
 

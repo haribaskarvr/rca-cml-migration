@@ -1,5 +1,5 @@
 {
-  "name": "@haribaskarvr/rca-cml-migration",
+  "name": "rca-cml-migration",
   "description": "Salesforce CLI plugin for safely exporting, importing, and migrating Revenue Cloud Constraint Model Language (CML) models between orgs, with dry-run validation and explicit write safeguards.",
   "repository": {
     "type": "git",
@@ -79,7 +79,7 @@
     "version": "oclif readme"
   },
   "publishConfig": {
-    "access": "restricted"
+    "access": "public"
   },
   "wireit": {
     "build": {
