@@ -9,7 +9,7 @@
   "bugs": {
     "url": "https://github.com/haribaskarvr/rca-cml-migration/issues"
   },
-  "version": "1.0.2",
+  "version": "1.0.3",
   "dependencies": {
     "@oclif/core": "^4",
     "@salesforce/core": "^8",

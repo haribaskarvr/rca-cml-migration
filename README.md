@@ -14,6 +14,18 @@ The bundled Python engine uses only the standard library.
 
 ## Install
 
+Install Python first if it is not already available:
+
+| Platform         | Install                                           | Verify              |
+| ---------------- | ------------------------------------------------- | ------------------- |
+| Windows (WinGet) | `winget install --exact --id Python.Python.3.13`  | `py -3 --version`   |
+| macOS (Homebrew) | `brew install python`                             | `python3 --version` |
+| Ubuntu/Debian    | `sudo apt update` then `sudo apt install python3` | `python3 --version` |
+
+The reported version must be **3.10 or newer**; older Linux releases may provide an older Python. Alternatively, use the [official Python downloads](https://www.python.org/downloads/). On Windows, enable **Add Python to PATH** if offered. Reopen your terminal after installation. No `pip install` step is required.
+
+Then install the plugin into Salesforce CLI:
+
 ```powershell
 sf plugins install rca-cml-migration
 sf cml --help
